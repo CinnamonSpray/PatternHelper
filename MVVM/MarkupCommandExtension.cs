@@ -2,13 +2,12 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Markup;
 
 namespace PatternHelper.MVVM
 {
     [ComVisible(false)]
-    public abstract class MarkupCommandExtension<TypeClass, TypeArgs> : MarkupExtension, ICommand
+    public abstract class MarkupCommandExtension<TypeClass, TypeArgs> : MarkupExtension
         where TypeClass : class, new()
     {
         public IEventArgsConverter ParameterConverter { get; set; }
@@ -19,25 +18,19 @@ namespace PatternHelper.MVVM
 
             if (pvt != null)
             {
-                // EventToCommand
-                var evt = pvt.TargetProperty as EventInfo;
-                if (evt != null)
+                switch (pvt.TargetProperty)
                 {
-                    return EventToCommand(evt.EventHandlerType);
-                }
+                    case EventInfo evt:
+                        return EventToCommand(evt.EventHandlerType);
 
-                var mvt = pvt.TargetProperty as MethodInfo;
-                if (mvt != null)
-                {
-                    return EventToCommand(mvt.GetParameters()[1].ParameterType);
-                }
+                    case MethodInfo mvt:
+                        return EventToCommand(mvt.GetParameters()[1].ParameterType);
 
-                // ICommand
-                var cmd = pvt.TargetProperty as DependencyProperty;
-                if (cmd != null)
-                {
-                    // return new Lazy<T>(() => new T()).Value;
-                    return new TypeClass();
+                    case DependencyProperty cmd:
+                        return new RelayCommand<TypeArgs>(
+                            MarkupCommandExecute, MarkupCommandCanExecute, pvt.TargetObject);
+
+                    default: break;
                 }
             }
 
@@ -51,24 +44,6 @@ namespace PatternHelper.MVVM
 
         protected abstract void MarkupCommandExecute(TypeArgs o);
 
-        #region ICommand
-        public event EventHandler CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
-
-        public void Execute(object parameter)
-        {
-            MarkupCommandExecute((TypeArgs)parameter);
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return MarkupCommandCanExecute((TypeArgs)parameter);
-        }
-        #endregion
-
         #region EventToCommand
         private Delegate EventToCommand(Type dlgType)
         {
@@ -80,7 +55,8 @@ namespace PatternHelper.MVVM
 
         private void DoAction(object sender, EventArgs e)
         {
-            var cmdParams = ParameterConverter != null ? ParameterConverter.Convert(sender, e) : e;
+            var cmdParams = ParameterConverter != null ?
+                ParameterConverter.Convert(sender, e) : null;
 
             if (MarkupCommandCanExecute((TypeArgs)cmdParams))
             {

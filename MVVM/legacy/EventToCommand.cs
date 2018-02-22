@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
 
-namespace PatternHelper.MVVM
+namespace PatternHelper.MVVM.legacy
 {
     [MarkupExtensionReturnType(typeof(EventHandler))]
     public sealed class EventToCommandExtension : MarkupExtension
