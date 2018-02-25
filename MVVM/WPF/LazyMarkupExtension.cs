@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Markup;
 
-namespace PatternHelper.MVVM
+namespace PatternHelper.MVVM.WPF
 {
     public class LazyMarkup<T> : MarkupExtension where T : new()
     {

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace PatternHelper.MVVM
+namespace PatternHelper.MVVM.WPF
 {
     public interface IEventArgsConverter
     {

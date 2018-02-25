@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace PatternHelper.MVVM
+namespace PatternHelper.MVVM.WPF
 {
     public class ViewModelBase : INotifyPropertyChanged
     {

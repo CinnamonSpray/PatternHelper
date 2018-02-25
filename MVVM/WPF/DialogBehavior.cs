@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace PatternHelper.MVVM
+namespace PatternHelper.MVVM.WPF
 {
     public abstract class DialogBehavior<T1, T2> where T1 : new() 
     {

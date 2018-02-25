@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Input;
 
-namespace PatternHelper.MVVM
+namespace PatternHelper.MVVM.WPF
 {
     public class RelayCommand<T> : ICommand
     {
         private Action<T> _execute = null;
         private Predicate<T> _canExecute = null;
-
-        private object TargetObject = null;
 
         public RelayCommand(Action<T> executeMethod)
         {
@@ -22,14 +19,6 @@ namespace PatternHelper.MVVM
             _canExecute = canExecute;
         }
 
-        public RelayCommand(Action<T> execute, Predicate<T> canExecute, object targetobject)
-        {
-            _execute = execute ?? throw new ArgumentNullException("execute");
-            _canExecute = canExecute;
-
-            TargetObject = targetobject;
-        }
-
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
@@ -38,20 +27,13 @@ namespace PatternHelper.MVVM
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute == null ? true : _canExecute((T)DefaultParameter(parameter));
+            return _canExecute == null ? true : _canExecute((T)parameter);
         }
 
         public void Execute(object parameter)
         {
-            _execute((T)DefaultParameter(parameter));
+            _execute((T)parameter);
         }
 
-        private object DefaultParameter(object original)
-        {
-            if (original == null && TargetObject is FrameworkElement)
-                return (TargetObject as FrameworkElement).DataContext;
-
-            else return original;    
-        }
     }
 }
