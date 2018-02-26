@@ -7,18 +7,17 @@ using System.Windows.Markup;
 namespace PatternHelper.MVVM.WPF
 {
     [ComVisible(false)]
-    public abstract class MarkupCommandExtension<TypeArgs> : MarkupExtension
+    public abstract class MarkupCommandExtension<ArgsType> : MarkupExtension
     {
         private ProvideValues _PVS = null;
 
-        public IEventArgsConverter ParameterConverter { get; set; }
+        private IEventArgsConverter _EvtArgsCvt = null;
+        public IEventArgsConverter EvtArgsCvt { set { _EvtArgsCvt = value; } }
+
+        private object _Dialog = null;
+        public object Dialog { set { _Dialog = value; } }
 
         public MarkupCommandExtension() { }
-
-        public MarkupCommandExtension(IEventArgsConverter parameterConverter)
-        {
-            ParameterConverter = parameterConverter;
-        }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
@@ -36,7 +35,7 @@ namespace PatternHelper.MVVM.WPF
                     case MethodInfo mvt:
                         return EventToCommand(mvt.GetParameters()[1].ParameterType);
 
-                    case DependencyProperty cmd:
+                    case DependencyProperty _:
                         return new RelayCommand<object>(RelayExcute, RelayCanExcute);
 
                     default: break;
@@ -46,28 +45,28 @@ namespace PatternHelper.MVVM.WPF
             return null;
         }
 
-        protected virtual bool MarkupCommandCanExecute(TypeArgs o)
+        protected virtual bool MarkupCommandCanExecute(ArgsType o)
         {
             return true;
         }
 
-        protected abstract void MarkupCommandExecute(TypeArgs o);
+        protected abstract void MarkupCommandExecute(ArgsType o);
 
         private bool RelayCanExcute(object o)
         {
-            return MarkupCommandCanExecute((TypeArgs)DefaultParameter(o));
+            return MarkupCommandCanExecute((ArgsType)DefaultParameter(o));
         }
 
         private void RelayExcute(object o)
         {
-            MarkupCommandExecute((TypeArgs)DefaultParameter(o));
+            MarkupCommandExecute((ArgsType)DefaultParameter(o));
         }
 
         private object DefaultParameter(object original)
         {
             if (original != null) return original;
 
-            return (_PVS.TargetObject as FrameworkElement)?.DataContext ?? null;
+            return (_PVS.TargetObject as FrameworkElement).DataContext ?? null;
         }
 
         #region EventToCommand
@@ -81,7 +80,7 @@ namespace PatternHelper.MVVM.WPF
 
         private void DoAction(object sender, EventArgs e)
         {
-            var cmdParams = ParameterConverter != null ? ParameterConverter.Convert(sender, e) : null;
+            var cmdParams = _EvtArgsCvt != null ? _EvtArgsCvt.Convert(sender, e) : null;
 
             if (RelayCanExcute(cmdParams))
             {
