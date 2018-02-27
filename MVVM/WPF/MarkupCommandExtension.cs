@@ -14,9 +14,6 @@ namespace PatternHelper.MVVM.WPF
         private IEventArgsConverter _EvtArgsCvt = null;
         public IEventArgsConverter EvtArgsCvt { set { _EvtArgsCvt = value; } }
 
-        private object _Dialog = null;
-        public object Dialog { set { _Dialog = value; } }
-
         public MarkupCommandExtension() { }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
