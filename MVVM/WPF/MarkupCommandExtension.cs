@@ -7,7 +7,7 @@ using System.Windows.Markup;
 namespace PatternHelper.MVVM.WPF
 {
     [ComVisible(false)]
-    public abstract class MarkupCommandExtension<ArgsType> : MarkupExtension
+    public abstract class MarkupCommandExtension<TArgs> : MarkupExtension
     {
         private ProvideValues _PVS = null;
 
@@ -42,21 +42,21 @@ namespace PatternHelper.MVVM.WPF
             return null;
         }
 
-        protected virtual bool MarkupCommandCanExecute(ArgsType o)
+        protected virtual bool MarkupCommandCanExecute(TArgs o)
         {
             return true;
         }
 
-        protected abstract void MarkupCommandExecute(ArgsType o);
+        protected abstract void MarkupCommandExecute(TArgs o);
 
         private bool RelayCanExcute(object o)
         {
-            return MarkupCommandCanExecute((ArgsType)DefaultParameter(o));
+            return MarkupCommandCanExecute((TArgs)DefaultParameter(o));
         }
 
         private void RelayExcute(object o)
         {
-            MarkupCommandExecute((ArgsType)DefaultParameter(o));
+            MarkupCommandExecute((TArgs)DefaultParameter(o));
         }
 
         private object DefaultParameter(object original)

@@ -42,6 +42,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MVVM\WPF\MarkupCommandArgsType.cs" />
     <Compile Include="MVVM\WPF\LazyMarkupExtension.cs" />
     <Compile Include="MVVM\WPF\MarkupCommandExtension.cs" />
     <Compile Include="MVVM\WPF\DialogBehavior.cs" />
