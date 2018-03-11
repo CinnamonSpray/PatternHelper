@@ -40,15 +40,16 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MVVM\WPF\MarkupCommandArgsType.cs" />
     <Compile Include="MVVM\WPF\LazyMarkupExtension.cs" />
     <Compile Include="MVVM\WPF\MarkupCommandExtension.cs" />
     <Compile Include="MVVM\WPF\DialogBehavior.cs" />
     <Compile Include="MVVM\WPF\legacy\EventToCommand.cs" />
     <Compile Include="MVVM\WPF\ConverterExtension.cs" />
     <Compile Include="MVVM\WPF\RelayCommand.cs" />
+    <Compile Include="MVVM\WPF\legacy\TestCommandExtension.cs" />
     <Compile Include="MVVM\WPF\ViewModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -56,6 +57,9 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\MVVM\Test01\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>

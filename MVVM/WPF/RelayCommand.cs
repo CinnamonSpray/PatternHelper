@@ -34,6 +34,5 @@ namespace PatternHelper.MVVM.WPF
         {
             _execute((T)parameter);
         }
-
     }
 }

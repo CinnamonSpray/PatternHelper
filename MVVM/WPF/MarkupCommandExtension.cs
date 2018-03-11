@@ -7,16 +7,34 @@ using System.Windows.Markup;
 namespace PatternHelper.MVVM.WPF
 {
     [ComVisible(false)]
-    public abstract class MarkupCommandExtension<TArgs> : MarkupExtension
+    public abstract class MarkupCommandExtension<T1, T2> : MarkupExtension
     {
         private ProvideValues _PVS = null;
+        protected T1 DataContext
+        {
+            get
+            {
+                var context = _PVS.TargetObject as FrameworkElement;
+
+                if (context != null) return (T1)context.DataContext;
+
+                return default(T1);
+            }
+
+            set
+            {
+                var context = _PVS.TargetObject as FrameworkElement;
+
+                if (context != null) context.DataContext = value;
+            }
+        }
 
         private IEventArgsConverter _EvtArgsCvt = null;
         public IEventArgsConverter EvtArgsCvt { set { _EvtArgsCvt = value; } }
 
         public MarkupCommandExtension() { }
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
+        public sealed override object ProvideValue(IServiceProvider serviceProvider)
         {
             var pvt = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
 
@@ -32,8 +50,8 @@ namespace PatternHelper.MVVM.WPF
                     case MethodInfo mvt:
                         return EventToCommand(mvt.GetParameters()[1].ParameterType);
 
-                    case DependencyProperty _:
-                        return new RelayCommand<object>(RelayExcute, RelayCanExcute);
+                    case DependencyProperty cmd when cmd.Name == "Command":
+                        return new RelayCommand<T2>(MarkupCommandExecute, MarkupCommandCanExecute);
 
                     default: break;
                 }
@@ -42,29 +60,12 @@ namespace PatternHelper.MVVM.WPF
             return null;
         }
 
-        protected virtual bool MarkupCommandCanExecute(TArgs o)
+        protected virtual bool MarkupCommandCanExecute(T2 args)
         {
             return true;
         }
 
-        protected abstract void MarkupCommandExecute(TArgs o);
-
-        private bool RelayCanExcute(object o)
-        {
-            return MarkupCommandCanExecute((TArgs)DefaultParameter(o));
-        }
-
-        private void RelayExcute(object o)
-        {
-            MarkupCommandExecute((TArgs)DefaultParameter(o));
-        }
-
-        private object DefaultParameter(object original)
-        {
-            if (original != null) return original;
-
-            return (_PVS.TargetObject as FrameworkElement).DataContext ?? null;
-        }
+        protected abstract void MarkupCommandExecute(T2 args);
 
         #region EventToCommand
         private Delegate EventToCommand(Type dlgType)
@@ -79,9 +80,9 @@ namespace PatternHelper.MVVM.WPF
         {
             var cmdParams = _EvtArgsCvt != null ? _EvtArgsCvt.Convert(sender, e) : null;
 
-            if (RelayCanExcute(cmdParams))
+            if (MarkupCommandCanExecute((T2)cmdParams))
             {
-                RelayExcute(cmdParams);
+                MarkupCommandExecute((T2)cmdParams);
             }
         }
         #endregion
