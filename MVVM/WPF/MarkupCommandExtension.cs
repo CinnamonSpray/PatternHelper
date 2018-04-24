@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -14,7 +15,7 @@ namespace PatternHelper.MVVM.WPF
         {
             get
             {
-                var context = _PVS.TargetObject as FrameworkElement;
+                var context = _PVS?.TargetObject as FrameworkElement;
 
                 if (context != null) return (T1)context.DataContext;
 
@@ -23,7 +24,7 @@ namespace PatternHelper.MVVM.WPF
 
             set
             {
-                var context = _PVS.TargetObject as FrameworkElement;
+                var context = _PVS?.TargetObject as FrameworkElement;
 
                 if (context != null) context.DataContext = value;
             }
@@ -32,7 +33,19 @@ namespace PatternHelper.MVVM.WPF
         private IEventArgsConverter _EvtArgsCvt = null;
         public IEventArgsConverter EvtArgsCvt { set { _EvtArgsCvt = value; } }
 
-        public MarkupCommandExtension() { }
+        private object _Cmd = null;
+        private static Dictionary<string, MarkupCommandExtension<T1, T2>> _Dic;
+
+        static MarkupCommandExtension()
+        {
+            _Dic = new Dictionary<string, MarkupCommandExtension<T1, T2>>();
+        }
+
+        public MarkupCommandExtension()
+        {
+            if (!(_Dic.TryGetValue(GetType().Name, out _)))
+                _Dic.Add(GetType().Name, this);
+        }
 
         public sealed override object ProvideValue(IServiceProvider serviceProvider)
         {
@@ -40,6 +53,33 @@ namespace PatternHelper.MVVM.WPF
 
             if (pvt != null)
             {
+                if (_Dic.TryGetValue(GetType().Name, out MarkupCommandExtension<T1, T2> self))
+                {
+                    self._PVS = new ProvideValues(pvt.TargetObject, pvt.TargetProperty);
+
+                    if (self._Cmd == null)
+                    {
+                        switch (_PVS.TargetProperty)
+                        {
+                            case EventInfo evt:
+                                self._Cmd =  EventToCommand(evt.EventHandlerType);
+                                break;
+
+                            case MethodInfo mvt:
+                                self._Cmd =  EventToCommand(mvt.GetParameters()[1].ParameterType);
+                                break;
+
+                            case DependencyProperty cmd when cmd.Name == "Command":
+                                self._Cmd =  new RelayCommand<T2>(MarkupCommandExecute, MarkupCommandCanExecute);
+                                break;
+
+                            default: break;
+                        }
+                    }
+
+                    return self._Cmd;
+                }
+                /*
                 _PVS = new ProvideValues(pvt.TargetObject, pvt.TargetProperty);
 
                 switch (_PVS.TargetProperty)
@@ -55,6 +95,7 @@ namespace PatternHelper.MVVM.WPF
 
                     default: break;
                 }
+                */
             }
 
             return null;

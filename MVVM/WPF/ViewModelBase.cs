@@ -41,6 +41,20 @@ namespace PatternHelper.MVVM.WPF
 
         protected virtual bool ThrowOnInvalidPropertyName { get; private set; }
 
+        private bool _IsSelected;
+        public bool IsSelected
+        {
+            get { return _IsSelected; }
+            set
+            {
+                SetField(ref _IsSelected, value, nameof(IsSelected));
+
+                if(value) OnSelected();
+            }
+        }
+
+        protected virtual void OnSelected() { }
+
         public ViewModelBase() { }
     }
 }
