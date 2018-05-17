@@ -44,8 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MVVM\WPF\LazyMarkupExtension.cs" />
-    <Compile Include="MVVM\WPF\legacy\TestCommandExtension.cs" />
-    <Compile Include="MVVM\WPF\legacy\TestRelayCommand.cs" />
     <Compile Include="MVVM\WPF\MarkupCommandExtension.cs" />
     <Compile Include="MVVM\WPF\DialogBehavior.cs" />
     <Compile Include="MVVM\WPF\legacy\EventToCommand.cs" />

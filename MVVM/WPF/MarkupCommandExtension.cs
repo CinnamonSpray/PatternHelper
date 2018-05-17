@@ -33,53 +33,14 @@ namespace PatternHelper.MVVM.WPF
         private IEventArgsConverter _EvtArgsCvt = null;
         public IEventArgsConverter EvtArgsCvt { set { _EvtArgsCvt = value; } }
 
-        private object _Cmd = null;
-        private static Dictionary<string, MarkupCommandExtension<T1, T2>> _Dic;
-
-        static MarkupCommandExtension()
-        {
-            _Dic = new Dictionary<string, MarkupCommandExtension<T1, T2>>();
-        }
-
-        public MarkupCommandExtension()
-        {
-            if (!(_Dic.TryGetValue(GetType().Name, out _)))
-                _Dic.Add(GetType().Name, this);
-        }
+        public MarkupCommandExtension() { }
 
         public sealed override object ProvideValue(IServiceProvider serviceProvider)
         {
             var pvt = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
 
-            if (pvt != null)
+            if (pvt == null)
             {
-                if (_Dic.TryGetValue(GetType().Name, out MarkupCommandExtension<T1, T2> self))
-                {
-                    self._PVS = new ProvideValues(pvt.TargetObject, pvt.TargetProperty);
-
-                    if (self._Cmd == null)
-                    {
-                        switch (_PVS.TargetProperty)
-                        {
-                            case EventInfo evt:
-                                self._Cmd =  EventToCommand(evt.EventHandlerType);
-                                break;
-
-                            case MethodInfo mvt:
-                                self._Cmd =  EventToCommand(mvt.GetParameters()[1].ParameterType);
-                                break;
-
-                            case DependencyProperty cmd when cmd.Name == "Command":
-                                self._Cmd =  new RelayCommand<T2>(MarkupCommandExecute, MarkupCommandCanExecute);
-                                break;
-
-                            default: break;
-                        }
-                    }
-
-                    return self._Cmd;
-                }
-                /*
                 _PVS = new ProvideValues(pvt.TargetObject, pvt.TargetProperty);
 
                 switch (_PVS.TargetProperty)
@@ -95,7 +56,6 @@ namespace PatternHelper.MVVM.WPF
 
                     default: break;
                 }
-                */
             }
 
             return null;
